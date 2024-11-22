@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Route Mapper</title>
+    <link rel="stylesheet" href="style2.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+</head>
+<body>
+    <header>
+        <h1>Tourist Route Mapper</h1>
+    </header>
+
+    <div class="container">
+        <h2 style="text-align: center; color: #2A3663;">Plan Your Route</h2>
+        <form id="routeForm">
+            <div class="location-group">
+                <label for="location-1">Location 1:</label>
+                <input type="text" id="location-1" name="locations" required placeholder="Enter location 1">
+            </div>
+            <button type="button" id="addLocation">Add Another Location</button>
+            <button type="submit">Show Routes</button>
+        </form>
+
+        <div id="map" class="map-container" style="height: 500px; margin-top: 20px;"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Tourist Mapper | Explore the World with Us</p>
+    </footer>
+
+    <!-- PapaParse Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Leaflet Geocoder -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <!-- JavaScript Code -->
+    <script src="script2.js"></script>
+</body>
+</html>

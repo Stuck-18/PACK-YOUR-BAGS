@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Mapping Webpage</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        /* Sidebar styles */
+        .side-nav {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+
+        .side-nav a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .side-nav a:hover {
+            background-color: #575757;
+        }
+
+        .side-nav .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .menu-icon {
+            font-size: 30px;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Menu Icon -->
+    <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+
+    <!-- Side Navigation -->
+    <div id="sideNav" class="side-nav">
+        <span class="close-btn" onclick="toggleSidebar()">×</span>
+        <a href="#about">About</a>
+        <a href="#feedback">Feedback</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="header-content">
+                <h1>Pack My Bags</h1>
+                <div class="search-container">
+                    <div class="search-bar">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search tourist spots or locations"
+                            oninput="suggestRecommendations()"
+                        />
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                        <a href="#" class="search-button" onclick="searchLocation()">🔍</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="filter-container">
+            <a href="#Mountains" class="filter-button" onclick="filterData('Mountains')">Mountains</a>
+            <a href="#Beach" class="filter-button" onclick="filterData('Beach')">Beaches</a>
+            <a href="#Cultural" class="filter-button" onclick="filterData('Cultural')">Cultural</a>
+            <a href="anothermap.html" class="filter-button">Search Location</a>
+        </div>
+
+        <div id="card-container" class="card-container">
+            <!-- Cards will be dynamically inserted here -->
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Tourist Mapper | Explore the World with Us</p>
+        </footer>
+    </div>
+
+    <script>
+        // Function to toggle the sidebar visibility
+        function toggleSidebar() {
+            const sideNav = document.getElementById("sideNav");
+            if (sideNav.style.width === "250px") {
+                sideNav.style.width = "0";
+            } else {
+                sideNav.style.width = "250px";
+            }
+        }
+
+        // Your existing JavaScript code (e.g., for loading and displaying data) goes here
+        let allData = []; // To store all CSV data
+
+        // Function to load and parse the CSV file
+        function loadCSVData() {
+            Papa.parse("locations_data 3.csv", {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    allData = results.data; // Store all data globally
+                    displayData(allData);   // Display all data by default
+                }
+            });
+        }
+
+        // Function to display parsed data in the HTML
+        function displayData(data) {
+            const container = document.getElementById("card-container");
+            container.innerHTML = ''; // Clear existing content
+
+            data.forEach((spot) => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <img src="${spot.ImageURL}" alt="${spot.Name}">
+                    <div class="card-info">
+                        <h3>${spot.Name}</h3>
+                        <p>${spot.Description}</p>
+                        <p>Best Time: ${spot.BestTime}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Filter function based on category
+        function filterData(category) {
+            const filteredData = allData.filter(spot => spot.Type === category); // Assuming 'Type' column in CSV
+            displayData(filteredData);
+        }
+
+        // Auto-suggest function for search bar
+        function suggestRecommendations() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const autocompleteList = document.getElementById("autocomplete-list");
+            autocompleteList.innerHTML = ''; // Clear previous suggestions
+
+            if (input) {
+                const suggestions = allData.filter(
+                    (spot) => spot.Name && spot.Name.toLowerCase().includes(input)
+                );
+
+                // Limit to 5 suggestions
+                suggestions.slice(0, 5).forEach((suggestion) => {
+                    const item = document.createElement("div");
+                    item.classList.add("autocomplete-item");
+                    item.innerHTML = suggestion.Name;
+                    item.onclick = () => selectSuggestion(suggestion.Name);
+                    autocompleteList.appendChild(item);
+                });
+
+                // Show suggestions when there are results
+                autocompleteList.style.display = suggestions.length > 0 ? 'block' : 'none';
+            } else {
+                autocompleteList.style.display = 'none'; // Hide suggestions if input is empty
+            }
+        }
+
+        function selectSuggestion(name) {
+            document.getElementById("searchInput").value = name;
+            document.getElementById("autocomplete-list").innerHTML = ''; // Clear suggestions
+            document.getElementById("autocomplete-list").style.display = 'none'; // Hide list
+            searchLocation();
+        }
+
+        // Ensure the search bar clears suggestions on page click
+        document.addEventListener('click', (e) => {
+            if (!document.querySelector('.search-bar').contains(e.target)) {
+                document.getElementById("autocomplete-list").style.display = 'none';
+            }
+        });
+
+        // Search function to display matching spots
+        function searchLocation() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filteredData = allData.filter(spot => spot.Name.toLowerCase().includes(query));
+            displayData(filteredData);
+        }
+
+        // Load CSV data on page load
+        window.onload = loadCSVData;
+    </script>
+</body>
+
+</html>
